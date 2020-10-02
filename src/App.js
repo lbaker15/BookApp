@@ -11,12 +11,14 @@ import { Route } from 'react-router-dom'
 
 class BooksApp extends React.Component {
   state = {
-    bookArray: [],
-    wantToReadArray: [],
-    readArray: [],
-    currentlyReadingArray: [],
-    query: ''
+      bookArray: [],
+      wantToReadArray: [],
+      readArray: [],
+      currentlyReadingArray: [],
+      query: '',
+      activeShelf: 'currentlyReading'
   }
+
   componentDidMount () {
     const apiCall = () => {
       BooksAPI.getAll()
@@ -105,7 +107,14 @@ class BooksApp extends React.Component {
     })
   }
 
+  changeShelf = (value) => {
+    this.setState((prev) => ({
+      activeShelf: value
+    }))
+  }
+
   render() {
+    console.log(this.state.activeShelf)
     return (
       <div className="app">
         
@@ -126,12 +135,33 @@ class BooksApp extends React.Component {
               <h1>MyReads</h1>
             </div>
 
+            <div className="selector">
+              <select
+              type="text"
+              className="shelfSelector"
+              value={this.state.shelfValue} 
+              onChange={(e) => {
+              this.changeShelf(e.target.value)
+              }}>
+                <option>Choose a Shelf</option>
+                <option value="currentlyReading">Currently Reading</option>
+                <option value="wantToRead">Want to Read</option>
+                <option value="read">Read</option>
+              </select>
+            </div>
+
             <div className="list-books-content">
               <div>
 
-              <CurrentlyReading readStatusHandle={this.readStatusHandle} array={this.state.currentlyReadingArray}/>
-              <WantToRead readStatusHandle={this.readStatusHandle} array={this.state.wantToReadArray} />
-              <Read readStatusHandle={this.readStatusHandle} array={this.state.readArray} />           
+              {this.state.activeShelf === 'currentlyReading' | this.state.activeShelf === '' &&
+                <CurrentlyReading readStatusHandle={this.readStatusHandle} array={this.state.currentlyReadingArray}/>
+              }
+              {this.state.activeShelf === 'wantToRead' &&
+                <WantToRead readStatusHandle={this.readStatusHandle} array={this.state.wantToReadArray} />
+              }
+              {this.state.activeShelf === 'read' &&
+                <Read readStatusHandle={this.readStatusHandle} array={this.state.readArray} />           
+              }
 
               </div>
             </div>
