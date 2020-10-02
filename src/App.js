@@ -1,7 +1,13 @@
 import React from 'react'
 import * as BooksAPI from './BooksAPI'
 import './App.css'
-import BookComponent from './BookComponent'
+import Search from './Search'
+import CurrentlyReading from './CurrentlyReading'
+import WantToRead from './WantToRead'
+import Read from './Read'
+import { Link } from 'react-router-dom'
+import { Route } from 'react-router-dom'
+
 
 class BooksApp extends React.Component {
   state = {
@@ -9,132 +15,131 @@ class BooksApp extends React.Component {
     wantToReadArray: [],
     readArray: [],
     currentlyReadingArray: [],
-    /**
-     * TODO: Instead of using this state variable to keep track of which page
-     * we're on, use the URL in the browser's address bar. This will ensure that
-     * users can use the browser's back and forward buttons to navigate between
-     * pages, as well as provide a good URL they can bookmark and share.
-     */
-    showSearchPage: false
+    query: ''
   }
   componentDidMount () {
+    const apiCall = () => {
+      BooksAPI.getAll()
+      .then(res => this.setState({
+        bookArray: res
+      }))
+      .then(res => {
+        const currentlyReading = this.state.bookArray.filter(x => x.shelf === 'currentlyReading')
+        this.setState({
+          currentlyReadingArray: currentlyReading
+        })
+        const wantToRead = this.state.bookArray.filter(x => x.shelf === 'wantToRead')
+        this.setState({
+          wantToReadArray: wantToRead
+        })
+        const read = this.state.bookArray.filter(x => x.shelf === 'read')
+        this.setState({
+          readArray: read
+        })
+      })
+      }
+      apiCall()
+  }
+
+  updateQuery = (query) => {
+    this.setState(() => ({
+        query: query.trim()
+    }))
+  }
+
+  readStatusHandle = (value, book) => {
+    console.log(value, book)
+    BooksAPI.update(book, value)
+    .then(res => {
+      const newBookArray = this.state.bookArray.filter(x => x.title !== book.title)
+      book.shelf = value
+      this.setState({
+        bookArray: newBookArray.concat(book)
+      })
+    })
+    .then(res => {
+      const currentlyReading = this.state.bookArray.filter(x => x.shelf === 'currentlyReading')
+      this.setState({
+        currentlyReadingArray: currentlyReading
+      })
+      const wantToRead = this.state.bookArray.filter(x => x.shelf === 'wantToRead')
+      this.setState({
+        wantToReadArray: wantToRead
+      })
+      const read = this.state.bookArray.filter(x => x.shelf === 'read')
+      this.setState({
+        readArray: read
+      })
+    })
+  }
+
+  readStatusHandleSearch = (value, book) => {
+    console.log(value, book)
+    BooksAPI.update(book, value)
     BooksAPI.getAll()
     .then(res => this.setState({
       bookArray: res
     }))
+    .then(res => {
+      const currentlyReading = this.state.bookArray.filter(x => x.shelf === 'currentlyReading')
+      this.setState({
+        currentlyReadingArray: currentlyReading
+      })
+      const wantToRead = this.state.bookArray.filter(x => x.shelf === 'wantToRead')
+      this.setState({
+        wantToReadArray: wantToRead
+      })
+      const read = this.state.bookArray.filter(x => x.shelf === 'read')
+      this.setState({
+        readArray: read
+      })
+    })
   }
 
-  readStatusHandle = (value, image, title, authors) => {
-    const singleBookInfo = []
-    const a = {"image": image, "title": title, "authors": authors} 
-    singleBookInfo.push(a)
-
-    if (value === 'wantToRead') {
-      const map = this.state.wantToReadArray.map(x => x.title)
-      const filter = map.filter(x => x === singleBookInfo[0].title)
-        if(filter.length === 0){
-          this.setState((prev) => ({
-            wantToReadArray: prev.wantToReadArray.concat(singleBookInfo)
-          }))
-        }
-    }
-    if (value === 'read') {
-      const map = this.state.readArray.map(x => x.title)
-      const filter = map.filter(x => x === singleBookInfo[0].title)
-        if(filter.length === 0){
-          this.setState((prev) => ({
-            readArray: prev.readArray.concat(singleBookInfo)
-          }))
-        }
-    }
-    if (value === 'currentlyReading') {
-      const map = this.state.currentlyReadingArray.map(x => x.title)
-      const filter = map.filter(x => x === singleBookInfo[0].title)
-        if(filter.length === 0) {
-          this.setState((prev) => ({
-            currentlyReadingArray: prev.currentlyReadingArray.concat(singleBookInfo)
-          }))
-        }
-    }
+  sendQuery = () => {
+    BooksAPI.search(this.state.query)
+    .then(res => {
+      this.setState({
+        searchResultsArray: res
+      })     
+    })
   }
 
   render() {
-    console.log(this.state)
     return (
       <div className="app">
-        {this.state.showSearchPage ? (
-          <div className="search-books">
-            <div className="search-books-bar">
-              <button className="close-search" onClick={() => this.setState({ showSearchPage: false })}>Close</button>
-              <div className="search-books-input-wrapper">
-                {
-
-                /*
-                  NOTES: The search from BooksAPI is limited to a particular set of search terms.
-                  You can find these search terms here:
-                  https://github.com/udacity/reactnd-project-myreads-starter/blob/master/SEARCH_TERMS.md
-
-                  However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
-                  you don't find a specific author or title. Every search is limited by search terms.
-                */}
-                <input type="text" placeholder="Search by title or author"/>
-
-              </div>
-            </div>
-            <div className="search-books-results">
-              <ol className="books-grid"></ol>
-            </div>
+        
+        <Link to='/search'>                   
+          <div className="open-search">
+              <button>Add a book</button>
           </div>
-        ) : (
+         </Link>
+
+         <Route path='/search' render={() => (
+           <Search val={this.state.query} update={this.updateQuery} send={this.sendQuery} readStatus={this.readStatusHandleSearch} searchArray={this.state.searchResultsArray} />
+         )} />
+         
+        
+         <Route exact path='/' render={() => (
           <div className="list-books">
             <div className="list-books-title">
               <h1>MyReads</h1>
             </div>
+
             <div className="list-books-content">
               <div>
 
-                <div className="bookshelf">
-                  <h2 className="bookshelf-title">Currently Reading</h2>
-                  <div className="bookshelf-books">
-                    <ol className="books-grid">
-                      <li>
-                        {this.state.bookArray.length !== 0 && (
-                          <BookComponent readStatus={this.readStatusHandle} bookArray={this.state.bookArray}/>
-                        )}
-                      </li>
-                    </ol>
-                  </div>
-                </div>
-
-                <div className="bookshelf">
-                  <h2 className="bookshelf-title">Want to Read</h2>
-                  <div className="bookshelf-books">
-                    <ol className="books-grid">
-                      <li>
-
-                      </li>
-                    </ol>
-                  </div>
-                </div>
-
-                <div className="bookshelf">
-                  <h2 className="bookshelf-title">Read</h2>
-                  <div className="bookshelf-books">
-                    <ol className="books-grid">
-                      <li>
-
-                      </li>
-                    </ol>
-                  </div>
-                </div>
+              <CurrentlyReading readStatusHandle={this.readStatusHandle} array={this.state.currentlyReadingArray}/>
+              <WantToRead readStatusHandle={this.readStatusHandle} array={this.state.wantToReadArray} />
+              <Read readStatusHandle={this.readStatusHandle} array={this.state.readArray} />           
 
               </div>
             </div>
-            <div className="open-search">
-              <button onClick={() => this.setState({ showSearchPage: true })}>Add a book</button>
-            </div>
           </div>
-        )}
+          )} />
+        
+
+
       </div>
     )
   }

@@ -1,34 +1,30 @@
-import React, { useCallback } from 'react'
+import React, { Component } from 'react'
+import BookShelfChanger from './BookShelfChanger'
 
-class BookComponent extends React.Component {
+class BookComponent extends Component {
     state = {
 
     }
     render() {
-        const book = this.props.bookArray[0]
+        const book = this.props.bookArray
         return(
+        book.map(x => {
+        return(
+            <li key={x.id}>
             <div className="book">
             <div className="book-top">
-            <div className="book-cover" style={{ width: 128, height: 188, backgroundImage: `url("${book.imageLinks.smallThumbnail}")` }}></div>
+            <div className="book-cover" style={{ width: 128, height: 188, backgroundImage: `url("${x.imageLinks.smallThumbnail}")` }}></div>
             <div className="book-shelf-changer">
 
-                <select value={this.state.value} 
-                onChange={(e) => {
-                this.props.readStatus(e.target.value, book.imageLinks.smallThumbnail, book.title, book.authors)
-                }
-                }>
-                    <option value="move" disabled>Move to...</option>
-                    <option value="currentlyReading">Currently Reading</option>
-                    <option value="wantToRead">Want to Read</option>
-                    <option value="read">Read</option>
-                    <option value="none">None</option>
-                </select>
+            <BookShelfChanger readStatus={this.props.readStatus} book={x} />
                 
             </div>
             </div>
-            <div className="book-title">{book.title}</div>
-            <div className="book-authors">{book.authors}</div>
+            <div className="book-title">{x.title}</div>
+            <div className="book-authors">{x.authors}</div>
             </div>
+            </li>
+        )})
         )
     }
 }
