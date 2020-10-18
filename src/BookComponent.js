@@ -31,7 +31,6 @@ class BookComponent extends Component {
 
     remove = (x) => {
         const a = this.state.favourites.filter(y => y !== x.title)
-        /*NEED TO ALSO REMOVE FROM LOCAL STORAGE*/
         localStorage.removeItem(x.title)
         this.setState({
             favourites: a
