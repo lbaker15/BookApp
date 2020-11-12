@@ -4,15 +4,13 @@ import { Link } from 'react-router-dom'
 
 class Search extends Component {
     render() {   
-            return (
-        
+        return (
             <div className="search-books">
                 <div className="search-books-bar">
                 <Link to='/'>
                     <button className="close-search">Close</button>
                 </Link>
                 <div className="search-books-input-wrapper">
-        
                     <input 
                     type="text" 
                     placeholder="Search by title or author"
@@ -22,13 +20,11 @@ class Search extends Component {
                     this.props.send()
                     }}
                     />
-
                 </div>
                 </div>
-
-                    {this.props.searchArray !== undefined &&
+                {this.props.searchArray !== undefined &&
                     <SearchResults readStatus={this.props.readStatus} searchArray={this.props.searchArray} />
-                    }
+                }
             </div>
         )
     }

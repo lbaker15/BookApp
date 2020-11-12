@@ -16,7 +16,6 @@ class BookComponent extends Component {
     ls = (x) => {
         const favourite = localStorage.getItem(x.title)
         this.setState((prev) => ({favourites: prev.favourites.concat(JSON.parse(favourite))}))
-        console.log(favourite)
     }
     
     componentDidMount = (c) => {
@@ -38,11 +37,10 @@ class BookComponent extends Component {
     }
 
     render() {
-
         const book = this.props.bookArray
+        const {favourites} = this.state
         return(
         book.map(x => {
- 
         return(
             <li key={x.id}>
             <div className="book">
@@ -52,37 +50,25 @@ class BookComponent extends Component {
             <div className="book-shelf-changer">
                 <BookShelfChanger readStatus={this.props.readStatus} book={x} />            
             </div>
-            
             </div>
+            
             <div className="book-title">{x.title}</div>
             <div className="book-authors">{x.authors}</div>
-            {this.state.favourites.includes(x.title) === false &&
-            <div>
+            
             <i 
-            className="heart outline icon"
+            className={favourites.includes(x.title) ? "heart icon" : "heart outline icon"}
             value={x.title}
             ref={x.id}
-            onClick={(e) => {
-                this.favourite(x, e)
-            }}
-            ></i>
-            </div>
-            }
-            {this.state.favourites.includes(x.title) === true &&
-            <div>
-            <i 
-            className="heart icon"
-            value={x.title}
-            ref={x.id}
-            onClick={(e) => {
+            onClick={() => {
                 this.favourite(x)
             }}
             ></i>
-            <i 
-            onClick={() => this.remove(x)}
-            className="window close icon"></i>
-            </div>
+            {favourites.includes(x.title) === true &&
+                <i 
+                onClick={() => this.remove(x)}
+                className="window close icon"></i>
             }
+                    
             </div>
             </li>
         )})

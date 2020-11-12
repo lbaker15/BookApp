@@ -1,9 +1,7 @@
 import React, { Component } from 'react'
 
 class BookShelfChanger extends Component {
-    state = {
-
-    }
+    state = {}
     render(){  
         return (
             <div>
