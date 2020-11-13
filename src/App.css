@@ -159,6 +159,13 @@ button:active {
 .book {
   width: 140px;
 }
+.bookSearch {
+  width: 140px;
+  height: 250px;
+}
+.searchChange {
+  margin-bottom: 35px;
+}
 
 .book-title,
 .book-authors {
